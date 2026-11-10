@@ -1,0 +1,11 @@
+{
+  "name": "agenten-dashboard",
+  "owner": { "name": "Vincent" },
+  "plugins": [
+    {
+      "name": "agenten-dashboard",
+      "source": "./",
+      "description": "Live-Dashboard für Haupt- und Subagenten neben dem Chat, Gatekeeper (Modell und Aufwand je Aufgabenbereich für Subagenten) und Planer für größere Aufgaben."
+    }
+  ]
+}
