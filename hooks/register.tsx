@@ -368,12 +368,12 @@ const CATEGORY_NAME: Record<Category, string> = {
 
 // Wörter, bei denen nie abgestuft wird (Urteil).
 const KEEP_STRONG =
-  /(prüf|review|bewert|beurteil|entscheid|analys|abwäg|strateg|konzept|architekt|planung|plane |\brecht(?:s|lich)?\b|steuer|vertrag|sicherheit|security|audit|final|freigab|verif|evaluat|assess|kritik|critique|design)/i
+  /(prüf|review|bewert|beurteil|entscheid|analys|abwäg|strateg|konzept|architekt|\bplan(?:e|en|ung|t|st)?\b|\brecht(?:s|lich\w*)?\b|steuer|vertrag|sicherheit|security|audit|final|freigab|verif|evaluat|assess|kritik|critique|design)/i
 
 // Wörter für Aufgaben, die etwas zerstören oder unumkehrbar ändern können: nie an Haiku
 // (Erfahrungsbericht: ein kleines Modell löschte „alte Dateien“, die wichtig waren).
 const DESTRUCTIVE =
-  /(lösch|loesch|delete|entfern|remove|\brm\b|überschreib|ueberschreib|overwrite|zurücksetz|reset|migrat|deploy|\bpush|drop |truncate|aufräum|cleanup|clean up|purge)/i
+  /(lösch|loesch|delete|entfern|remove|\brm\b|überschreib|ueberschreib|overwrite|zurücksetz|reset|migrat|migrier|deploy|veröffentlich|veroeffentlich|publish|verschieb|benenn|rename|\bmv\b|\bpush|drop |truncate|aufräum|cleanup|clean up|purge)/i
 
 type Route = {
   /** Modell, das der Gatekeeper setzt; leer = Chat-Modell / unverändert. */
@@ -438,7 +438,11 @@ async function decideRoute(
   }
 
   if (category === 'nachschlagen') {
-    if (mode === 'qualitaet' && parent === 'opus') return { model: 'sonnet', effort: 'medium', category, reason: 'Nachschlagen → Sonnet, Aufwand mittel' }
+    if (mode === 'qualitaet') {
+      // Qualität: Nachschlagen nie auf Haiku. Läuft der Chat auf Opus → Sonnet, sonst bleibt das Chat-Modell.
+      if (parent === 'opus') return { model: 'sonnet', effort: 'medium', category, reason: 'Nachschlagen → Sonnet, Aufwand mittel' }
+      return { category, reason: 'Nachschlagen → Chat-Modell (Modus qualitaet)' }
+    }
     return { model: 'haiku', effort: 'medium', category, reason: 'Nachschlagen → Haiku, Aufwand mittel' }
   }
 
@@ -482,7 +486,7 @@ Den Plan legst du dem Nutzer nicht zur Freigabe vor; er sieht ihn im Agenten-Das
 function gatekeeperText(mode: GatekeeperMode): string {
   const table =
     mode === 'qualitaet'
-      ? '- Nachschlagen (finden, auflisten, abschreiben, umformatieren) → Sonnet, Aufwand mittel (läuft der Chat nicht auf Opus: Haiku).\n- Zuarbeit (recherchieren, zusammenfassen, nach Vorgabe erstellen) → Modell dieses Chats.\n- Urteil (planen, prüfen, bewerten, Endergebnis) → Modell dieses Chats, Aufwand hoch.'
+      ? '- Nachschlagen (finden, auflisten, abschreiben, umformatieren) → Sonnet, Aufwand mittel, wenn dieser Chat auf Opus läuft; sonst Modell dieses Chats (nie Haiku).\n- Zuarbeit (recherchieren, zusammenfassen, nach Vorgabe erstellen) → Modell dieses Chats.\n- Urteil (planen, prüfen, bewerten, Endergebnis) → Modell dieses Chats, Aufwand hoch.'
       : '- Nachschlagen (finden, auflisten, abschreiben, umformatieren) → Haiku, Aufwand mittel.\n- Zuarbeit (recherchieren, zusammenfassen, viele Dokumente, nach Vorgabe erstellen) → Sonnet, wenn dieser Chat auf Opus läuft; sonst Modell dieses Chats.\n- Urteil (planen, prüfen, bewerten, abwägen, Endergebnis) → Modell dieses Chats, Aufwand hoch.'
   return `# Gatekeeper für Subagenten (Plugin „agenten-dashboard“)
 Beim Start eines Subagenten legt ein Gatekeeper Modell und Aufwand nach Aufgabenbereich fest:
@@ -550,7 +554,7 @@ export const register: Register = on => {
       arg === 'aus'
         ? 'Subagenten laufen wieder ohne Eingriff.'
         : arg === 'qualitaet'
-          ? 'Nachschlagen → Sonnet, Zuarbeit → Chat-Modell, Urteil → Chat-Modell mit hohem Aufwand.'
+          ? 'Nachschlagen → Sonnet (bei Opus-Chat, sonst Chat-Modell, nie Haiku), Zuarbeit → Chat-Modell, Urteil → Chat-Modell mit hohem Aufwand.'
           : 'Nachschlagen → Haiku, Zuarbeit → Sonnet (wenn der Chat auf Opus läuft), Urteil → Chat-Modell mit hohem Aufwand.'
     return { text: `Gatekeeper: ${arg}. ${what} Gilt für neue Subagenten und alle künftigen Chats.` }
   })

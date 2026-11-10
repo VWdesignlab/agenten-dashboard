@@ -1,6 +1,6 @@
 {
   "name": "agenten-dashboard",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Live-Dashboard neben dem Chat, Gatekeeper (Modell und Aufwand je Aufgabenbereich für Subagenten) und Planer für größere Aufgaben.",
   "types": "./types/index.d.ts",
   "license": "MIT"

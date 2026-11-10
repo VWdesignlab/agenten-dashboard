@@ -37,12 +37,12 @@ Beim Start eines Subagenten ordnet der Gatekeeper die Aufgabe einem Bereich zu u
 - Planen/Prüfen/Bewerten und ähnliche Schlüsselwörter führen ohne Einstufung direkt zu „Urteil“. Sonst stuft Haiku die Aufgabe ein (kurzer Aufruf über dein Kontingent).
 - Haiku-Aufträge bekommen das heutige Datum und die Anweisung, nachzusuchen, vollständig abzuarbeiten, zu prüfen und Lücken zu nennen (gleicht bekannte Haiku-Schwächen aus).
 - Ein vom Hauptagenten ausdrücklich gesetztes Modell gilt immer (so kann er hochstufen). Bei unklarer oder fehlgeschlagener Einstufung bleibt alles beim Chat-Modell.
-- Aufgaben, die etwas löschen, überschreiben, zurücksetzen, migrieren oder veröffentlichen, gehen nie an Haiku, sondern mindestens an die Zuarbeit-Stufe.
-- Ist ein Befehlsname (`/agenten`, `/gatekeeper`, `/planer`) bei dir schon vergeben, etwa durch einen eigenen Skill, fehlt nur dieser Befehl. Der Rest der Mod läuft weiter.
+- Aufgaben, die etwas löschen, überschreiben, verschieben, umbenennen, zurücksetzen, migrieren, deployen oder veröffentlichen, gehen nie an Haiku, sondern mindestens an die Zuarbeit-Stufe.
+- Ist ein Befehlsname (`/agenten`, `/gatekeeper`, `/planer`) bei dir schon vergeben, etwa durch einen eigenen Skill, erscheint dieser Befehl womöglich nicht in der Befehlsliste. Die Mod startet trotzdem vollständig.
 - **Verstärkung**: Läuft ein herabgestufter Subagent dreimal hintereinander auf Fehler, nimmt er für die nächsten vier Denkschritte das stärkere Modell des Chats und fällt danach auf sein günstiges Modell zurück. Das Dashboard zeigt es im Verlauf und beim Modell der Karte.
 - Der Hauptagent selbst wird nicht verändert: Modell und Aufwand wählst du in der App.
 
-Befehl: `/gatekeeper normal | qualitaet | aus`. „qualitaet“: Nachschlagen auf Sonnet, Zuarbeit auf dem Chat-Modell.
+Befehl: `/gatekeeper normal | qualitaet | aus`. „qualitaet“: Nachschlagen nie auf Haiku (Sonnet, wenn der Chat auf Opus läuft, sonst Chat-Modell), Zuarbeit auf dem Chat-Modell.
 
 Grundlage: Anthropic-Dokumentation „Choosing the right model“, „Effort“ und „Optimizing for cost and intelligence“ (Stand November 2026).
 
@@ -52,7 +52,7 @@ Gibt Claude für größere Aufgaben (ab drei getrennten Schritten, mehreren Erge
 ## Vergleich mit ähnlichen Projekten (Stand November 2026)
 
 - **Dashboards:** Andere Lösungen laufen als eigener Server mit Browser-Oberfläche (z. B. disler/claude-code-hooks-multi-agent-observability, simple10/agents-observe, Claude-Code-Agent-Monitor) oder als Statuszeile (z. B. jarrodwatts/claude-hud). Dieses Plugin läuft ohne Server direkt neben dem Chat und zeigt zusätzlich Aufwand (effort) und Plan-Fortschritt je Agent. Kosten und Tokens zeigt es nicht.
-- **Modell-Routing:** Viele Ansätze routen nur per Hinweis im Systemprompt. Dieses Plugin setzt Modell und Aufwand direkt beim Start des Subagenten, damit es auch wirklich gilt. Studien zu Routern zeigen, dass ein schmaler Satz aus zwei bis drei Modellen am besten abschneidet und feine Schwierigkeitserkennung wenig bringt. Deshalb gibt es nur drei Bereiche, und im Zweifel bleibt das Chat-Modell.
+- **Modell-Routing:** Viele Ansätze routen nur per Hinweis im Systemprompt. Dieses Plugin setzt Modell und Aufwand direkt beim Start des Subagenten, damit es auch wirklich gilt. Benchmarks zu LLM-Routern (z. B. LLMRouterBench, arXiv 2601.07206) zeigen abnehmenden Nutzen größerer Modell-Sätze; eine sorgfältige Auswahl weniger Modelle zählt mehr. Deshalb gibt es nur drei Bereiche, und im Zweifel bleibt das Chat-Modell. Ob das Routing bei Claude-Code-Subagenten Qualität und Kosten verbessert, ist nicht gemessen.
 - **Planen und Prüfen:** Folgt den Claude-Code-Best-Practices (erkunden, planen, umsetzen, prüfen) und der Checklisten-Forschung (TICK: Ja/Nein-Fragen einzeln beantworten).
 
 Einstellungen gelten für alle künftigen Chats. Das Plugin sendet keine Daten nach außen; die Einstufung im Gatekeeper ist ein kurzer Haiku-Aufruf über dein Konto.

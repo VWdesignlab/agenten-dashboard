@@ -418,3 +418,29 @@ test('Löschen/Aufräumen geht nie an Haiku, auch wenn als Nachschlagen eingestu
   expect(seen[0]?.model).toBe('sonnet')
   expect(seen[0]?.prompt).not.toContain('Heute ist')
 })
+
+test('„Planen“ und „rechtliche Frage“ führen ohne Einstufung zu Urteil', async ($, on) => {
+  const seen = engine(on, NACHSCHLAGEN)
+  await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
+  await $.agent.spawn(spawn({ prompt: 'Planen: Ablauf für den Umzug', description: 'Planen', subagentType: 'general-purpose' }))
+  await $.agent.spawn(spawn({ prompt: 'Kläre die rechtliche Frage zum Vertrag', description: 'Rechtliche Frage', subagentType: 'general-purpose' }))
+  expect(seen[0]?.model).toBeUndefined()
+  expect(seen[1]?.model).toBeUndefined()
+})
+
+test('Migrieren, Veröffentlichen, Publish und Umbenennen gehen nie an Haiku', async ($, on) => {
+  const seen = engine(on, NACHSCHLAGEN)
+  await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
+  for (const text of ['Migriere die Datenbank', 'Veröffentliche das Paket', 'Publish the release', 'Benenne die Dateien um']) {
+    await $.agent.spawn(spawn({ prompt: text, description: text, subagentType: 'general-purpose' }))
+  }
+  expect(seen.map(one => one.model)).toEqual(['sonnet', 'sonnet', 'sonnet', 'sonnet'])
+})
+
+test('Modus qualitaet mit Sonnet-Chat: Nachschlagen bleibt auf dem Chat-Modell, nie Haiku', async ($, on) => {
+  const seen = engine(on, NACHSCHLAGEN)
+  await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
+  await $.command.run(cmd('gatekeeper', 'qualitaet') as never)
+  await $.agent.spawn(spawn({ prompt: 'Finde alle Rechnungen', description: 'Dateien finden', subagentType: 'Explore', parentModel: 'claude-sonnet-5-5' }))
+  expect(seen[0]?.model).toBeUndefined()
+})
